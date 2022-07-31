@@ -12,6 +12,25 @@ struct ContentView: View {
 	@StateObject var model = PhotoModel()
 	let columns = [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())]
 	
+	func overlay(_ condition: Bool, text: String) -> some View {
+		Group {
+			GeometryReader { proxy in
+				if condition {
+					Text(text)
+						.font(.caption2)
+						.frame(width: proxy.size.width, height: proxy.size.height)
+						.background(.ultraThinMaterial)
+						.multilineTextAlignment(.center)
+						.animation(.easeIn.delay(1), value: 0)
+				}
+			}
+		}
+	}
+	
+	func isTapped(_ photo: Photo) -> Bool {
+		return model.selectedImage == photo
+	}
+	
     var body: some View {
 		NavigationView {
 			ScrollView {
@@ -20,6 +39,10 @@ struct ContentView: View {
 							WebImage(url: photo.url)
 								.resizable()
 								.aspectRatio(1, contentMode: .fit)
+								.rotation3DEffect(.degrees(isTapped(photo) ? 180 : 0), axis: (x: 0, y: isTapped(photo) ? 1 : 0, z: 0))
+								.overlay(overlay(isTapped(photo), text: photo.title))
+								.onTapGesture { withAnimation { model.flipImage(photo) } }
+								.id(photo.id)
 								.onAppear {
 									if photo == model.results.last {
 										model.loadMore()

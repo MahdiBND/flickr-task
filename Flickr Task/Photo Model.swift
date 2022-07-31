@@ -45,6 +45,8 @@ class PhotoModel: ObservableObject {
 	@Published var isLoading = false
 	@Published var searchText = ""
 	@Published var hasError = false
+	@Published var selectedImage: Photo? = nil
+	
 	private var tasks = Set<AnyCancellable>()
 	private var page = 1
 	
@@ -119,5 +121,13 @@ class PhotoModel: ObservableObject {
 	func refresh() {
 		getRecents()
 		hasError = false
+	}
+	
+	func flipImage(_ image: Photo) {
+		if selectedImage == image {
+			selectedImage = nil
+		} else {
+			selectedImage = image
+		}
 	}
 }
